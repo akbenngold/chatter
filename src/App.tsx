@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Feed from "./pages/Feed";
 import Login from "./pages/Login";
@@ -9,21 +9,31 @@ import PostDetails from "./pages/PostDetails";
 import PageNotFound from "./pages/PageNotFound";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
+import Demo from "./pages/Demo";
+import { Blog } from "./Context/Context";
 
 function App() {
-  const auth = false;
+  const { currentUser } = Blog();
   return (
     <>
-      {auth ? <Feed /> : <NavBar />}
+      {currentUser && <Feed />}
 
+      <NavBar />
+      {!currentUser && <Demo />}
       <Routes>
-        <Route path="/" element={<Landing />} />
+        {/* <Route path="/" element={<Landing />} /> */}
+        {/* <Route path="/demo" element={<Demo />} /> */}
+
         <Route path="/feed" element={<Feed />} />
-        <Route path="/signup" element={<Signup />} />
+
+        {/* <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/postdetails" element={<PostDetails />} />
-        <Route path="/postanalytics" element={<PostAnalytics />} />
-        <Route path="*" element={<PageNotFound />} />
+        <Route path="/postanalytics" element={<PostAnalytics />} /> */}
+        <Route
+          path="*"
+          element={<Navigate to={!currentUser ? "/demo" : "/"} />}
+        />
       </Routes>
       {/* <Login /> */}
       <Footer />
