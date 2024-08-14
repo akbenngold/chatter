@@ -10,16 +10,20 @@ import PageNotFound from "./pages/PageNotFound";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import Demo from "./pages/Demo";
-import { Blog } from "./Context/Context";
+import { useContext } from "react";
+import { AuthContext } from "./Context/AuthProvider";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
-  const { currentUser } = Blog();
+  const { user } = useContext(AuthContext);
+  console.log(user);
   return (
     <>
-      {currentUser && <Feed />}
+      {user && <Feed />}
 
       <NavBar />
-      {!currentUser && <Demo />}
+      {!user && <Demo />}
       <Routes>
         {/* <Route path="/" element={<Landing />} /> */}
         {/* <Route path="/demo" element={<Demo />} /> */}
@@ -30,12 +34,10 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/postdetails" element={<PostDetails />} />
         <Route path="/postanalytics" element={<PostAnalytics />} /> */}
-        <Route
-          path="*"
-          element={<Navigate to={!currentUser ? "/demo" : "/"} />}
-        />
+        <Route path="*" element={<Navigate to={!user ? "/demo" : "/"} />} />
       </Routes>
       {/* <Login /> */}
+      <ToastContainer />
       <Footer />
     </>
   );

@@ -1,41 +1,79 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { AuthContext } from "../Context/AuthProvider";
 
 type Inputs = {
   email: string;
   password: string;
-  confirmPassword: string;
-  name: string;
+  confirmPassword?: string;
+  name?: string;
 };
 
 function Login() {
   const [signupState, setSignupState] = useState(false);
-
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+  const { signUpWithGmail, login, createUser } = useContext(AuthContext);
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
-    reset, // Added reset function from react-hook-form
+    reset,
   } = useForm<Inputs>();
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
-    // Add your login or signup logic here
+  const handleSignup: SubmitHandler<Inputs> = (data) => {
+    const email = data.email;
+    const password = data.password;
+
+    createUser(email, password)
+      .then((result) => {
+        const user = result.user;
+        toast.success("Account creation successful!");
+      })
+      .catch((err) => {
+        setErrorMessage("Signup failed. Please try again.");
+      });
+  };
+
+  const handleLogin = (data) => {
+    // SET UP MANUAL AUTH
+    const email = data.email;
+    const password = data.password;
+    console.log(email, password);
+    login(email, password)
+      .then((result) => {
+        const user = result.user;
+        toast.success("Login successful!");
+        console.log("User logged in:", user);
+      })
+      .catch((err) => {
+        console.error(err);
+        setErrorMessage("Provide a correct email & password!");
+      });
   };
 
   const handleGoogleLogin = () => {
-    // Logic for signing in with Google
-    console.log("Sign in with Google");
+    signUpWithGmail()
+      .then((result) => {
+        const user = result.user;
+        alert("Login success");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleFacebookLogin = () => {
-    // Logic for signing in with Facebook
     console.log("Sign in with Facebook");
+    // Implement Facebook login logic here
   };
 
   const loginComp = (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    // USE MANUAL FORM HERE NOT HOOK FORM
+    <form onSubmit={handleSubmit(handleLogin)}>
       <div className="form-control">
         <label className="label">
           <span className="label-text">Email</span>
@@ -55,16 +93,14 @@ function Login() {
         </label>
         <input
           type="password"
-          {...register("password", {
-            required: "Password is required",
-          })}
+          {...register("password", { required: "Password is required" })}
           className="input input-bordered"
         />
         {errors.password && (
           <p className="text-red-500 text-sm">{errors.password.message}</p>
         )}
       </div>
-      <div className="form-control mt-6">
+      <div className="form-control mt-6 ">
         <button type="submit" className="btn btn-primary">
           Login
         </button>
@@ -73,14 +109,14 @@ function Login() {
   );
 
   const signupComp = (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(handleSignup)}>
       <div className="form-control">
         <label className="label">
           <span className="label-text">Name</span>
         </label>
         <input
           type="text"
-          {...register("name", { required: "Name is required" })}
+          {...register("name", { required: signupState })}
           className="input input-bordered"
         />
         {errors.name && (
@@ -126,7 +162,7 @@ function Login() {
         <input
           type="password"
           {...register("confirmPassword", {
-            required: "Please confirm your password",
+            required: signupState,
             validate: (value) =>
               value === watch("password") || "Passwords do not match",
           })}
@@ -148,7 +184,8 @@ function Login() {
 
   const toggleForm = () => {
     setSignupState(!signupState);
-    reset(); // Reset form fields when switching between forms
+    reset();
+    setErrorMessage("");
   };
 
   return (
@@ -158,7 +195,6 @@ function Login() {
           <h3 className="font-bold text-lg">
             {signupState ? "Sign Up" : "Login"}
           </h3>
-          {/* LOGIN or SIGNUP */}
           {signupState ? signupComp : loginComp}
           <div className="divider">OR</div>
           <div className="flex justify-between">
@@ -178,13 +214,13 @@ function Login() {
 
           <a
             className="mx-auto mt-4 block cursor-pointer text-center text-blue-500"
-            onClick={toggleForm} // Use the toggleForm function here
+            onClick={toggleForm}
           >
             {signupState
               ? "Already have an account? Log in"
               : "Create new account"}
           </a>
-
+          <p className="text-red-500 text-sm">{errorMessage && errorMessage}</p>
           <div className="modal-action">
             <form method="dialog">
               <button className="btn">Close</button>

@@ -1,6 +1,9 @@
-import React from "react";
+import { AuthContext } from "../Context/AuthProvider";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 function NavBar() {
+  const { logOut, user } = useContext(AuthContext);
+
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">
@@ -70,12 +73,18 @@ function NavBar() {
         </ul>
       </div>
       <div className="navbar-end">
-        <Link
-          className="btn"
-          onClick={() => document.getElementById("my_modal_5").showModal()}
-        >
-          Get Started
-        </Link>
+        {user ? (
+          <Link className="btn" onClick={() => logOut()}>
+            Log Out
+          </Link>
+        ) : (
+          <Link
+            className="btn"
+            onClick={() => document.getElementById("my_modal_5").showModal()}
+          >
+            Get Started
+          </Link>
+        )}
       </div>
     </div>
   );
