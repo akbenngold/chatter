@@ -14,6 +14,7 @@ type Inputs = {
 function Login() {
   const [signupState, setSignupState] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
   const navigate = useNavigate();
   const { signUpWithGmail, login, createUser } = useContext(AuthContext);
   const {
@@ -23,6 +24,8 @@ function Login() {
     watch,
     reset,
   } = useForm<Inputs>();
+
+  const [form, setForm] = useState({ email: "", password: "" });
 
   const handleSignup: SubmitHandler<Inputs> = (data) => {
     const email = data.email;
@@ -59,7 +62,7 @@ function Login() {
     signUpWithGmail()
       .then((result) => {
         const user = result.user;
-        alert("Login success");
+        toast.success("Login success");
       })
       .catch((err) => {
         console.log(err);
@@ -72,7 +75,6 @@ function Login() {
   };
 
   const loginComp = (
-    // USE MANUAL FORM HERE NOT HOOK FORM
     <form onSubmit={handleSubmit(handleLogin)}>
       <div className="form-control">
         <label className="label">
@@ -80,12 +82,11 @@ function Login() {
         </label>
         <input
           type="email"
-          {...register("email", { required: "Email is required" })}
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
           className="input input-bordered"
+          required
         />
-        {errors.email && (
-          <p className="text-red-500 text-sm">{errors.email.message}</p>
-        )}
       </div>
       <div className="form-control mt-4">
         <label className="label">
@@ -93,14 +94,12 @@ function Login() {
         </label>
         <input
           type="password"
-          {...register("password", { required: "Password is required" })}
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
           className="input input-bordered"
         />
-        {errors.password && (
-          <p className="text-red-500 text-sm">{errors.password.message}</p>
-        )}
       </div>
-      <div className="form-control mt-6 ">
+      <div className="form-control mt-6 " onClick={() => handleLogin(form)}>
         <button type="submit" className="btn btn-primary">
           Login
         </button>

@@ -1,6 +1,8 @@
 import { AuthContext } from "../Context/AuthProvider";
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 function NavBar() {
   const { logOut, user } = useContext(AuthContext);
 
@@ -74,7 +76,15 @@ function NavBar() {
       </div>
       <div className="navbar-end">
         {user ? (
-          <Link className="btn" onClick={() => logOut()}>
+          <Link
+            className="btn"
+            onClick={() => {
+              logOut();
+              toast.error("Logged out successfully!");
+
+              Navigate("/");
+            }}
+          >
             Log Out
           </Link>
         ) : (
